@@ -17,7 +17,9 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class PostSerializer(serializers.ModelSerializer):
-    content = serializers.CharField(required=False)
+    # content = serializers.CharField(required=False)
     class Meta:
         model = HotelPost
-        fields = ['title','image', 'content', 'tags', 'created_at', 'updated_at']
+        fields = ['id','title', 'content', 'tags', 'amount', 'image']
+        
+      

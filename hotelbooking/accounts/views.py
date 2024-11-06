@@ -10,8 +10,12 @@ from django.contrib.auth import get_user_model
 from .serializers import UserSerializer
 from .serializers import UserSerializer,PostSerializer
 from .models import User,HotelPost
+from rest_framework.exceptions import NotFound
 from django.shortcuts import get_object_or_404
 from rest_framework.generics import ListAPIView
+from rest_framework.decorators import action
+from rest_framework.generics import RetrieveUpdateDestroyAPIView
+
 class RegisterView(APIView):
     permission_classes = [AllowAny]
 
@@ -85,15 +89,27 @@ class UpdateHotelPostView(APIView):
 class HotelPostListView(ListAPIView):
     queryset = HotelPost.objects.all()
     serializer_class = PostSerializer
-    permission_classes = [AllowAny]  
+    permission_classes = [AllowAny]
     
     
-class HotelPostDetailView(generics.RetrieveAPIView):
+    
+class HotelPostDetailView(RetrieveUpdateDestroyAPIView):
     queryset = HotelPost.objects.all()
     serializer_class = PostSerializer
-    permission_classes = [AllowAny] 
-    lookup_field = 'id' 
-    
+    permission_classes = [AllowAny]
+
+    def put(self, request, *args, **kwargs):
+        hotel_post = self.get_object()  # Get the hotel post to update
+        serializer = PostSerializer(hotel_post, data=request.data, partial=True)
+
+        print("Request Data:", request.data)  # Debugging request data
+
+        if serializer.is_valid():
+            serializer.save()  # Save the updated data
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        print("Serializer errors:", serializer.errors)  # Debugging serializer errors
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 class UpdateHotelPostView(APIView):
     permission_classes = [IsAuthenticated]  
 
